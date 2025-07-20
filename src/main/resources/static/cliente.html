@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulación Cliente</title>
+</head>
+<body>
+  <h1> Tienda Online</h1>
+
+  <h2> Productos Disponibles</h2>
+  <ul id="productos"></ul>
+
+  <h2> Realizar Pedido</h2>
+  <form id="formPedido">
+    <label>Nombre del cliente:</label>
+    <input type="text" id="cliente" required><br><br>
+
+    <label>ID del producto:</label>
+    <input type="number" id="productoId" required><br><br>
+
+    <label>Cantidad:</label>
+    <input type="number" id="cantidad" required><br><br>
+
+    <button type="submit">Confirmar Pedido</button>
+  </form>
+
+  <p id="resultadoPedido"></p>
+
+  <hr>
+
+  <h2> Historial de Pedidos</h2>
+  <form id="formHistorial">
+    <label>Nombre del cliente:</label>
+    <input type="text" id="nombreHistorial" required>
+    <button type="submit">Ver Historial</button>
+  </form>
+
+  <ul id="historialPedidos"></ul>
+
+  <script>
+    const lista = document.getElementById("productos");
+    const resultado = document.getElementById("resultadoPedido");
+    const historial = document.getElementById("historialPedidos");
+
+    // Mostrar productos
+    fetch("http://localhost:8080/api/productos")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `ID: ${p.id} | ${p.nombre} - $${p.precio} - Stock: ${p.stock}`;
+          lista.appendChild(li);
+        });
+      });
+
+    // Realizar pedido

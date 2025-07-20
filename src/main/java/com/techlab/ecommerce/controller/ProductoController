@@ -1,0 +1,56 @@
+package com.techlab.ecommerce.controller;
+
+import com.techlab.ecommerce.model.Producto;
+import com.techlab.ecommerce.service.ProductoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/productos")
+public class ProductoController {
+
+    @Autowired
+    private ProductoService productoService;
+
+    // Listar todos los productos
+    @GetMapping
+    public List<Producto> listarProductos() {
+        return productoService.obtenerTodos();
+    }
+
+    // Obtener producto por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> obtenerProducto(@PathVariable Long id) {
+        return productoService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Crear nuevo producto
+    @PostMapping
+    public Producto crearProducto(@RequestBody Producto producto) {
+        return productoService.crearProducto(producto);
+    }
+
+    // Actualizar producto existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
+        Producto actualizado = productoService.actualizarProducto(id, producto);
+        if (actualizado != null) return ResponseEntity.ok(actualizado);
+        return ResponseEntity.notFound().build();
+    }
+
+    // Eliminar producto (solo si stock = 0)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarProducto(@PathVariable Long id) {
+        try {
+            productoService.eliminarProducto(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+}

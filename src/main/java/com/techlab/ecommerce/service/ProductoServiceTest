@@ -1,0 +1,61 @@
+package com.techlab.ecommerce.service;
+
+import com.techlab.ecommerce.model.Producto;
+import com.techlab.ecommerce.repository.ProductoRepository;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ProductoServiceTest {
+
+    @Mock
+    private ProductoRepository productoRepository;
+
+    @InjectMocks
+    private ProductoService productoService;
+
+    public ProductoServiceTest() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testCrearYObtenerProducto() {
+        Producto p = new Producto();
+        p.setId(1L);
+        p.setNombre("Prueba");
+        p.setPrecio(1000.0);
+        p.setStock(5);
+
+        when(productoRepository.save(p)).thenReturn(p);
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(p));
+
+        Producto creado = productoService.crearProducto(p);
+        assertNotNull(creado);
+        assertEquals("Prueba", creado.getNombre());
+
+        Optional<Producto> obtenido = productoService.obtenerPorId(1L);
+        assertTrue(obtenido.isPresent());
+        assertEquals("Prueba", obtenido.get().getNombre());
+    }
+
+    @Test
+    void testObtenerTodos() {
+        Producto p = new Producto();
+        p.setId(1L);
+        p.setNombre("Prueba");
+
+        when(productoRepository.findAll()).thenReturn(Collections.singletonList(p));
+
+        List<Producto> productos = productoService.obtenerTodos();
+        assertEquals(1, productos.size());
+        assertEquals("Prueba", productos.get(0).getNombre());
+    }
+}

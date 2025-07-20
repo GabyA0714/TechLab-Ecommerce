@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración</title>
+</head>
+<body>
+  <h1>Panel de Administración</h1>
+
+  <h2> Productos</h2>
+  <ul id="listaProductos"></ul>
+
+  <h3>➕ Reponer Stock</h3>
+  <form id="formReponer">
+    <label>ID del producto:</label>
+    <input type="number" id="prodId" required><br>
+    <label>Cantidad a reponer:</label>
+    <input type="number" id="cantReponer" required><br>
+    <button type="submit">Reponer</button>
+  </form>
+  <p id="resReponer"></p>
+
+  <hr>
+
+  <h2> Pedidos</h2>
+  <ul id="listaPedidos"></ul>
+
+  <script>
+    const listaProductos = document.getElementById("listaProductos");
+    const listaPedidos = document.getElementById("listaPedidos");
+    const resReponer = document.getElementById("resReponer");
+
+    // Mostrar productos
+    fetch("http://localhost:8080/api/productos")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `ID: ${p.id} | ${p.nombre} - Stock: ${p.stock}`;
+          listaProductos.appendChild(li);
+        });
+      });
+
+    // Reponer stock
+    document.getElementById("formReponer").addEventListener("submit", e => {
+      e.preventDefault();
+      const id = document.getElementById("prodId").value;
+      const cantidad = parseInt(document.getElementById("cantReponer").value);
+
+      fetch(`http://localhost:8080/api/productos/${id}`)
+        .then(res => res.json())
+        .then(prod => {
+          prod.stock += cantidad;
+          return fetch(`http://localhost:8080/api/productos/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(prod)
+          });
+        })
+        .then(res => res.ok ? resReponer.textContent = "✅ Stock repuesto correctamente" :
+                              resReponer.textContent = "❌ Error al reponer stock");
+    });
+
+    // Mostrar pedidos
+    fetch("http://localhost:8080/api/pedidos")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `Pedido ID: ${p.id} | Cliente: ${p.cliente} | Cantidad: ${p.cantidad} | Estado: ${p.estado}`;
+          listaPedidos.appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+package com.techlab.ecommerce;
+
+import com.techlab.ecommerce.model.Producto;
+import com.techlab.ecommerce.service.ProductoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TestManual implements CommandLineRunner {
+
+    @Autowired
+    private ProductoService productoService;
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("=== Prueba manual de ProductoService ===");
+
+        Producto p = new Producto();
+        p.setNombre("Lentes de Sol");
+        p.setDescripcion("Lentes polarizados");
+        p.setPrecio(25000.0);
+        p.setStock(10);
+
+        Producto creado = productoService.crearProducto(p);
+        System.out.println("Producto creado: ID=" + creado.getId() + ", Nombre=" + creado.getNombre());
+
+        Producto obtenido = productoService.obtenerPorId(creado.getId()).orElse(null);
+        if (obtenido != null) {
+            System.out.println("Producto obtenido: " + obtenido.getNombre() + " - $" + obtenido.getPrecio());
+        }
+
+        obtenido.setPrecio(30000.0);
+        productoService.actualizarProducto(obtenido.getId(), obtenido);
+        System.out.println("Producto actualizado a precio: " + obtenido.getPrecio());
+
+        System.out.println("Todos los productos en el sistema:");
+        for (Producto prod : productoService.obtenerTodos()) {
+            System.out.println(prod.getId() + " - " + prod.getNombre() + " - $" + prod.getPrecio());
+        }
+
+        try {
+            productoService.eliminarProducto(creado.getId());
+            System.out.println("Producto eliminado con éxito.");
+        } catch (Exception e) {
+            System.out.println("No se pudo eliminar el producto: " + e.getMessage());
+        }
+    }
+}
